@@ -19,13 +19,13 @@ namespace CPCM
                 this.New.Visible = true;
                 if (e.Node.Nodes.Count != 0)
                 {
-                    this.Dependence.Visible = true;
-                    this.Edit.Visible = true;
+                    this.Dependence.Visible = false;
+                    this.Edit.Visible = false;
                 }
                 else
                 {
-                    this.Dependence.Visible = false;
-                    this.Edit.Visible = false;
+                    this.Dependence.Visible = true;
+                    this.Edit.Visible = true;
                 }
                 this.Rename.Visible = true;
                 this.Delete.Visible = true;
