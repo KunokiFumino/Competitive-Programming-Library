@@ -96,7 +96,11 @@ namespace CPCM
                 placeholder += ";" + d;
             }
             String[] dependences = Interaction.InputBox("Please input name of the dependences, split with \';\':", "dependences", placeholder, -1, -1).Split(new Char[] { ';' });
-            ((Node)this.treeView1.SelectedNode.Tag).dependences = ArrayList.Adapter(dependences);
+            ((Node)this.treeView1.SelectedNode.Tag).dependences.Clear();
+            foreach (String s in dependences)
+            {
+                if (s != "") ((Node)this.treeView1.SelectedNode.Tag).dependences.Add(s);
+            }
             Export();
         }
 
@@ -125,14 +129,15 @@ namespace CPCM
         private String code, cfg;
         private void LoadConfig()
         {
+            n = 0;
+            nodes = new Node[65536];
+            nodes[0] = new Node();
+            this.treeView1.Nodes[0].Tag = nodes[0];
+            names.Add("Root");
             try
             {
                 StreamReader streamReader = new StreamReader(@"config.txt");
                 String line;
-                n = 0;
-                nodes = new Node[65536];
-                nodes[0] = new Node();
-                Int32 i;
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     n++;
@@ -146,15 +151,13 @@ namespace CPCM
 
                     line = streamReader.ReadLine();
                     Int32 m = Convert.ToInt32((String)line);
-                    for (i = 0; i < m; i++)
+                    for (Int32 i = 0; i < m; i++)
                     {
                         line = streamReader.ReadLine();
                         nodes[n].dependences.Add(line);
                     }
                 }
                 streamReader.Close();
-                this.treeView1.Nodes[0].Tag = nodes[0];
-                names.Add("Root");
                 PreloadTreeNode(this.treeView1.Nodes[0], 0);
             }
             catch
