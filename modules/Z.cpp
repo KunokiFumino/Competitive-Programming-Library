@@ -1,6 +1,8 @@
 /*
-* Please notice that function set_modulo will call function euler, which has a time cost of O(sqrt(n)). If you do need to
-* reset modulo frequently, consider remove that call if possible.
+* Note that:
+*     set_modulo will call function euler, which has a time cost of O(sqrt(P)).
+*     inv will call function power, which has a time cost of O(log2(phi)).
+* Both of them include modulo operation, abuse of them may lead to TLE.
 */
 class Z {
 private:
@@ -26,6 +28,9 @@ public:
     }
     Z inv() const {
         return power(*this, phi - 1);
+    }
+    bool operator < (const Z& rhs) const {
+        return x < rhs.x;
     }
     Z operator - () const {
         return Z(norm(P - x));

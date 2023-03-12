@@ -1,24 +1,24 @@
 /*
-*
 * T MUST ALLOW : { +, *, T(0), < }
-*
-* Memory cost : about 25MB when T = int, sz = 200000
-*
 */
 template <typename T = int> class SegmentTree {
-public:
+private:
     vector<T> lazy_col, lazy_mul, lazy_add;
     vector<T> sum, maxi, mini;
     vector<int> maxi_id, mini_id;
     vector<bool> col;
-    //will return e when query on an illegal segment
-    T e;
-private:
     int L, R;
+public:
+    /*
+    * When query on a illegal range, <e, -1> will be the return value.
+    */
+    T e;
 
 public:
-    //[)
-    template<typename V> void build(int l, int r, const V& src) {
+    /*
+    * The range will be like : [ )
+    */
+    template<typename V> void build(const V& src, int l, int r) {
         int sz = (r - l) << 2;
         L = l, R = r;
         check_memory(col, sz);
@@ -30,44 +30,55 @@ public:
         check_memory(mini, sz);
         check_memory(maxi_id, sz);
         check_memory(mini_id, sz);
-        do_build(1, l, r, src);
+        do_build(src, 1, l, r);
     }
     void update_col(int l, int r, T u) {
+        if (l >= r) return;
         do_update_col(1, L, R, l, r, u);
     }
     void update_mul(int l, int r, T u) {
+        if (l >= r) return;
         do_update_mul(1, L, R, l, r, u);
     }
     void update_add(int l, int r, T u) {
+        if (l >= r) return;
         do_update_add(1, L, R, l, r, u);
     }
     T query_sum(int l, int r) {
+        if (l >= r) return e;
         return do_query_sum(1, L, R, l, r);
     }
+    /*
+    * <max value, max value index>
+    */
     pair<T, int> query_max(int l, int r) {
+        if (l >= r) return { e,-1 };
         return do_query_max(1, L, R, l, r);
     }
+    /*
+    * <min value, min value index>
+    */
     pair<T, int> query_min(int l, int r) {
+        if (l >= r) return { e,-1 };
         return do_query_min(1, L, R, l, r);
     }
 
 private:
-    template<typename V> void do_build(int rt, int l, int r, const V& src) {
+    template<typename V> void do_build(const V& src, int rt, int l, int r) {
         if (l + 1 == r) {
             sum[rt] = maxi[rt] = mini[rt] = src[l];
             maxi_id[rt] = mini_id[rt] = l;
             return;
         }
         int mid = (l + r) >> 1;
-        do_build(rt << 1, l, mid, src);
-        do_build(rt << 1 | 1, mid, r, src);
+        do_build(src, rt << 1, l, mid);
+        do_build(src, rt << 1 | 1, mid, r);
         push_up(rt);
         col[rt] = false;
         lazy_mul[rt] = 1;
         lazy_add[rt] = 0;
     }
     void do_update_col(int rt, int L, int R, int l, int r, T u) {
-        if (l >= r) return;
         if (l < L) l = L;
         if (R < r) r = R;
         if (l == L && r == R) {
@@ -87,7 +98,6 @@ private:
         push_up(rt);
     }
     void do_update_mul(int rt, int L, int R, int l, int r, T u) {
-        if (l >= r) return;
         if (l < L) l = L;
         if (R < r) r = R;
         if (l == L && r == R) {
@@ -109,7 +119,6 @@ private:
         push_up(rt);
     }
     void do_update_add(int rt, int L, int R, int l, int r, T u) {
-        if (l >= r) return;
         if (l < L) l = L;
         if (R < r) r = R;
         if (l == L && r == R) {
@@ -126,7 +135,6 @@ private:
         push_up(rt);
     }
     T do_query_sum(int rt, int L, int R, int l, int r) {
-        if (l >= r) return e;
         if (l < L) l = L;
         if (R < r) r = R;
         if (l == L && r == R) return sum[rt];
@@ -138,7 +146,6 @@ private:
         return ans;
     }
     pair<T, int> do_query_max(int rt, int L, int R, int l, int r) {
-        if (l >= r) return e;
         if (l < L) l = L;
         if (R < r) r = R;
         if (l == L && r == R) return { maxi[rt],maxi_id[rt] };
@@ -150,7 +157,6 @@ private:
         return al < ar ? ar : al;
     }
     pair<T, int> do_query_min(int rt, int L, int R, int l, int r) {
-        if (l >= r) return e;
         if (l < L) l = L;
         if (R < r) r = R;
         if (l == L && r == R) return { mini[rt],mini_id[rt] };
