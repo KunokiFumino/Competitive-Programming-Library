@@ -1,121 +1,317 @@
+using Microsoft.VisualBasic;
 using System.Collections;
-namespace cpcm
+using System.Diagnostics;
+
+namespace CPCM
 {
-
-    class Node
-    {
-        public Int32 f;
-        public String name, path;
-        public ArrayList subs = new ArrayList();
-        public ArrayList dependences = new ArrayList();
-    }
-
     public partial class Form1 : Form
     {
-        private Node[] nodes;
-        private ArrayList copied;
-        private Int32 n;
-        private String code;
         public Form1()
+        {
+            InitializeComponent();
+            LoadConfig();
+        }
+
+        private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                this.New.Visible = true;
+                if (e.Node.Nodes.Count != 0)
+                {
+                    this.Dependence.Visible = true;
+                    this.Edit.Visible = true;
+                }
+                else
+                {
+                    this.Dependence.Visible = false;
+                    this.Edit.Visible = false;
+                }
+                this.Rename.Visible = true;
+                this.Delete.Visible = true;
+                if (e.Node.Parent != null)
+                {
+                    this.Up.Visible = true;
+                    this.Down.Visible = true;
+                }
+                else
+                {
+                    this.Up.Visible = false;
+                    this.Down.Visible = false;
+                }
+                this.treeView1.SelectedNode = e.Node;
+            }
+        }
+
+        private void treeView1_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            if (e.Label == null)
+            {
+                e.CancelEdit = true;
+                return;
+            }
+            if (names.Contains(e.Label))
+            {
+                MessageBox.Show("This name has already in use.");
+                e.CancelEdit = true;
+                return;
+            }
+            else
+            {
+                names.Remove(this.treeView1.SelectedNode.Text);
+                names.Add(e.Label);
+            }
+            RenameDependences(this.treeView1.Nodes[0], this.treeView1.SelectedNode.Text, e.Label);
+            this.treeView1.SelectedNode.Text = e.Label;
+            Export();
+        }
+
+        private void RenameDependences(TreeNode t, String d, String nd)
+        {
+            for (Int32 i = 0; i < ((Node)t.Tag).dependences.Count; i++)
+            {
+                String s = (String)(((Node)t.Tag).dependences[i]);
+                if (s.Equals(d)) ((Node)t.Tag).dependences[i] = nd;
+            }
+            foreach (TreeNode node in t.Nodes)
+            {
+                RenameDependences(node, d, nd);
+            }
+        }
+
+        private void New_Click(object sender, EventArgs e)
+        {
+            TreeNode node = new TreeNode();
+            node.Name = "New Node";
+            node.Text = "New Node";
+            node.Tag = new Node();
+            this.treeView1.SelectedNode.Nodes.Add(node);
+        }
+
+        private void Dependence_Click(object sender, EventArgs e)
+        {
+            String placeholder = "";
+            foreach (String d in ((Node)this.treeView1.SelectedNode.Tag).dependences)
+            {
+                placeholder += ";" + d;
+            }
+            String[] dependences = Interaction.InputBox("Please input name of the dependences, split with \';\':", "dependences", placeholder, -1, -1).Split(new Char[] { ';' });
+            ((Node)this.treeView1.SelectedNode.Tag).dependences = ArrayList.Adapter(dependences);
+            Export();
+        }
+
+        private void Edit_Click(object sender, EventArgs e)
+        {
+            String file = Environment.CurrentDirectory + @"\" + this.treeView1.SelectedNode.Name + @".cpp";
+            if (!File.Exists(file)) File.Create(file);
+            Process.Start(@"notepad.exe ", file);
+        }
+
+        private void Rename_Click(object sender, EventArgs e)
+        {
+            this.treeView1.SelectedNode.BeginEdit();
+        }
+
+        private void Delete_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to delete this node?", "confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
+            this.treeView1.Nodes.Remove(this.treeView1.SelectedNode);
+            Export();
+        }
+        private Node[] nodes;
+        private ArrayList copied = new ArrayList();
+        private ArrayList names = new ArrayList();
+        private Int32 n, m;
+        private String code, cfg;
+        private void LoadConfig()
         {
             try
             {
                 StreamReader streamReader = new StreamReader(@"config.txt");
                 String line;
-                line = streamReader.ReadLine();
-                n = Convert.ToInt32(line);
-                nodes = new Node[n];
-                Int32 i, j;
-                for (i = 0; i < n; i++)
+                n = 0;
+                nodes = new Node[65536];
+                nodes[0] = new Node();
+                Int32 i;
+                while ((line = streamReader.ReadLine()) != null)
                 {
-                    nodes[i] = new Node();
+                    n++;
+                    nodes[n] = new Node();
+
+                    Int32 f = Convert.ToInt32((String)line);
+                    nodes[n].f = f;
+                    nodes[f].subs.Add(n);
+
+                    nodes[n].name = streamReader.ReadLine();
 
                     line = streamReader.ReadLine();
-                    line = streamReader.ReadLine();
-                    Int32 f = Convert.ToInt32((string)line);
-                    nodes[i].f = f;
-                    if (f != -1) nodes[f].subs.Add(i);
-
-                    nodes[i].name = streamReader.ReadLine();
-
-                    nodes[i].path = streamReader.ReadLine();
-
-                    line = streamReader.ReadLine();
-                    Int32 m = Convert.ToInt32((string)line);
-                    for (j = 0; j < m; j++)
+                    Int32 m = Convert.ToInt32((String)line);
+                    for (i = 0; i < m; i++)
                     {
                         line = streamReader.ReadLine();
-                        nodes[i].dependences.Add(line);
+                        nodes[n].dependences.Add(line);
                     }
                 }
                 streamReader.Close();
-            } catch {
-                MessageBox.Show("Can't find config.txt or it has syntax error.");
-                Environment.Exit(-1);
+                this.treeView1.Nodes[0].Tag = nodes[0];
+                names.Add("Root");
+                PreloadTreeNode(this.treeView1.Nodes[0], 0);
             }
-            InitializeComponent();
+            catch
+            {
+                return;
+            }
+        }
+        private void PreloadTreeNode(TreeNode t, Int32 u)
+        {
+            foreach (Int32 i in nodes[u].subs)
+            {
+                TreeNode node = new TreeNode();
+                node.Name = nodes[i].name;
+                node.Text = nodes[i].name;
+                node.Tag = nodes[i];
+                names.Add(node.Name);
+                Int32 v = t.Nodes.Add(node);
+                PreloadTreeNode(t.Nodes[v], i);
+            }
         }
 
-        private void recursivelyAdd(String name)
+        private void Export(TreeNode u, Int32 f)
         {
-            if (copied.Contains(name)) return;
-            copied.Add(name);
-            bool find = false;
-            for (Int32 i = 0; i < n; i++)
+            Int32 k = m;
+            if (k != 0)
             {
-                if (nodes[i].name == name)
-                {
-                    find = true;
-                    foreach (String d in nodes[i].dependences) recursivelyAdd(d);
-                    try
-                    {
-                        StreamReader streamReader = new StreamReader(nodes[i].path);
-                        code += streamReader.ReadToEnd() + "\n";
-                        streamReader.Close();
-                    } catch {
-                        MessageBox.Show("Can't find file [" + nodes[i].path + "].");
-                    }
-                    break;
-                }
+                cfg += Convert.ToString(f) + '\n';
+                cfg += u.Text + '\n';
+                cfg += Convert.ToString(((Node)u.Tag).dependences.Count) + '\n';
+                foreach (String d in ((Node)u.Tag).dependences) cfg += d + '\n';
             }
-            if (!find) MessageBox.Show("Can't find module [" + name + "].");
+            m++;
+            foreach (TreeNode v in u.Nodes) Export(v, k);
         }
 
-        private void recursivelyAdd(TreeNode t)
+        private void Export() 
         {
-            if (t.GetNodeCount(false) > 0)
-            {
-                for (int i = 0; i < t.Nodes.Count; i++)
-                {
-                    recursivelyAdd(t.Nodes[i]);
-                }
-            }
-            else if (t.Checked) recursivelyAdd(t.Name);
+            m = 0;
+            cfg = "";
+            Export(this.treeView1.Nodes[0], -1);
+            File.WriteAllText(@"config.txt", cfg);
         }
 
-        private void recursivelyUncheck(TreeNode t)
+        private TreeNode GetTreeNodeByText(String text)
         {
-            t.Checked = false;
-            if (t.GetNodeCount(false) > 0)
+            Queue<TreeNode> queue = new Queue<TreeNode>();
+            queue.Enqueue(this.treeView1.Nodes[0]);
+            while (queue.Count > 0)
             {
-                for (int i = 0; i < t.Nodes.Count; i++)
+                TreeNode u = queue.Dequeue();
+                if (u.Text == text) return u;
+                foreach (TreeNode v in u.Nodes) queue.Enqueue(v);
+            }
+            return null;
+        }
+
+        private String GetCodeByTreeNode(TreeNode u)
+        {
+            String ret = "";
+            try
+            {
+                StreamReader streamReader = new StreamReader(u.Text + @".cpp");
+                if (streamReader == null) return ret;
+                ret = streamReader.ReadToEnd();
+                streamReader.Close();
+            }
+            catch
+            {
+                return "";
+            }
+            return ret;
+        }
+
+        private void RecursivelyAdd(String text)
+        {
+            if (copied.Contains(text)) return;
+            copied.Add(text);
+            TreeNode u = GetTreeNodeByText(text);
+            if (u != null)
+            {
+                foreach (String d in ((Node)u.Tag).dependences) RecursivelyAdd(d);
+                code += GetCodeByTreeNode(u) + "\n";
+            }
+        }
+
+        private void RecursivelyAdd(TreeNode u)
+        {
+            if (u.Nodes.Count > 0)
+            {
+                foreach (TreeNode v in u.Nodes)
                 {
-                    recursivelyUncheck(t.Nodes[i]);
+                    RecursivelyAdd(v);
                 }
             }
+            if (u.Checked) RecursivelyAdd(u.Text);
+        }
+
+        private void RecursivelyUncheck(TreeNode u)
+        {
+            u.Checked = false;
+            foreach (TreeNode v in u.Nodes) RecursivelyUncheck(v);
+        }
+
+        private void Up_Click(object sender, EventArgs e)
+        {
+            TreeNode u = this.treeView1.SelectedNode.PrevNode;
+            TreeNode v = this.treeView1.SelectedNode;
+            TreeNode nu = (TreeNode)v.Clone();
+            TreeNode nv = (TreeNode)u.Clone();
+            TreeNode f = this.treeView1.SelectedNode.Parent;
+            if (u != null)
+            {
+                f.Nodes.Insert(u.Index, nu);
+                f.Nodes.Insert(v.Index, nv);
+                f.Nodes.Remove(u);
+                f.Nodes.Remove(v);
+                this.treeView1.SelectedNode = nu;
+            }
+            Export();
+        }
+
+        private void Down_Click(object sender, EventArgs e)
+        {
+            TreeNode u = this.treeView1.SelectedNode;
+            TreeNode v = this.treeView1.SelectedNode.NextNode;
+            TreeNode nu = (TreeNode)v.Clone();
+            TreeNode nv = (TreeNode)u.Clone();
+            TreeNode f = this.treeView1.SelectedNode.Parent;
+            if (v != null)
+            {
+                f.Nodes.Insert(u.Index, nu);
+                f.Nodes.Insert(v.Index, nv);
+                f.Nodes.Remove(u);
+                f.Nodes.Remove(v);
+                this.treeView1.SelectedNode = nu;
+            }
+            Export();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             copied = new ArrayList();
             code = "";
-            for (Int32 i = 0; i < treeView1.Nodes.Count; i++) recursivelyAdd(treeView1.Nodes[i]);
+            foreach (TreeNode t in treeView1.Nodes[0].Nodes) RecursivelyAdd(t);
             if (code != "") Clipboard.SetText(code);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            for (Int32 i = 0; i < treeView1.Nodes.Count; i++) recursivelyUncheck(treeView1.Nodes[i]);
+            foreach (TreeNode t in treeView1.Nodes[0].Nodes) RecursivelyUncheck(t);
         }
+    }
+    class Node
+    {
+        public Int32 f = 0;
+        public String name = "";
+        public ArrayList subs = new ArrayList();
+        public ArrayList dependences = new ArrayList();
     }
 }

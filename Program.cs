@@ -1,4 +1,4 @@
-namespace cpcm
+namespace CPCM
 {
     internal static class Program
     {
