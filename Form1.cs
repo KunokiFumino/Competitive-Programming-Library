@@ -62,6 +62,7 @@ namespace CPCM
                 names.Add(e.Label);
             }
             RenameDependences(this.treeView1.Nodes[0], this.treeView1.SelectedNode.Text, e.Label);
+            this.treeView1.SelectedNode.Name = e.Label;
             this.treeView1.SelectedNode.Text = e.Label;
             Export();
         }
@@ -107,7 +108,7 @@ namespace CPCM
         private void Edit_Click(object sender, EventArgs e)
         {
             String file = Environment.CurrentDirectory + @"\" + this.treeView1.SelectedNode.Name + @".cpp";
-            if (!File.Exists(file)) File.Create(file);
+            if (!File.Exists(file)) File.Create(file).Close();
             Process.Start(@"notepad.exe ", file);
         }
 
@@ -119,6 +120,7 @@ namespace CPCM
         private void Delete_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to delete this node?", "confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
+            names.Remove(this.treeView1.SelectedNode.Name);
             this.treeView1.Nodes.Remove(this.treeView1.SelectedNode);
             Export();
         }

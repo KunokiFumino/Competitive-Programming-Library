@@ -46,6 +46,7 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.Font = new System.Drawing.Font("Book Antiqua", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.New,
             this.Dependence,
@@ -55,54 +56,54 @@
             this.Up,
             this.Down});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(150, 158);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 180);
             // 
             // New
             // 
             this.New.Name = "New";
-            this.New.Size = new System.Drawing.Size(149, 22);
+            this.New.Size = new System.Drawing.Size(180, 22);
             this.New.Text = "New";
             this.New.Click += new System.EventHandler(this.New_Click);
             // 
             // Dependence
             // 
             this.Dependence.Name = "Dependence";
-            this.Dependence.Size = new System.Drawing.Size(149, 22);
+            this.Dependence.Size = new System.Drawing.Size(180, 22);
             this.Dependence.Text = "Dependence";
             this.Dependence.Click += new System.EventHandler(this.Dependence_Click);
             // 
             // Edit
             // 
             this.Edit.Name = "Edit";
-            this.Edit.Size = new System.Drawing.Size(149, 22);
+            this.Edit.Size = new System.Drawing.Size(180, 22);
             this.Edit.Text = "Edit";
             this.Edit.Click += new System.EventHandler(this.Edit_Click);
             // 
             // Rename
             // 
             this.Rename.Name = "Rename";
-            this.Rename.Size = new System.Drawing.Size(149, 22);
+            this.Rename.Size = new System.Drawing.Size(180, 22);
             this.Rename.Text = "Rename";
             this.Rename.Click += new System.EventHandler(this.Rename_Click);
             // 
             // Delete
             // 
             this.Delete.Name = "Delete";
-            this.Delete.Size = new System.Drawing.Size(149, 22);
+            this.Delete.Size = new System.Drawing.Size(180, 22);
             this.Delete.Text = "Delete";
             this.Delete.Click += new System.EventHandler(this.Delete_Click);
             // 
             // Up
             // 
             this.Up.Name = "Up";
-            this.Up.Size = new System.Drawing.Size(149, 22);
+            this.Up.Size = new System.Drawing.Size(180, 22);
             this.Up.Text = "Up";
             this.Up.Click += new System.EventHandler(this.Up_Click);
             // 
             // Down
             // 
             this.Down.Name = "Down";
-            this.Down.Size = new System.Drawing.Size(149, 22);
+            this.Down.Size = new System.Drawing.Size(180, 22);
             this.Down.Text = "Down";
             this.Down.Click += new System.EventHandler(this.Down_Click);
             // 
