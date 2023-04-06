@@ -1,24 +1,28 @@
 /*
-* w : Weight of this vertex.
-* f : Father of this vertex.
-* d : Depth of this vertex.
-* sz : Size of subtree rooted in this vertex.
-* e : Indices of edges that is connected with this vertex.
+* w : weight
+* f : father
+* d : depth
+* sz : size of subtree rooted in this vertex.
+* iep : indices of edges that ended in this vertex.
+* oep : indices of edges that started from this vertex.
 */
 template <typename Twv> class Vertex {
 public:
     Twv w;
     int f, d, sz;
-    vector<int> ep;
+    vector<int> iep;
+    vector<int> oep;
     Vertex() {}
     Vertex(Twv w) : w(w) {}
+    bool operator < (const Vertex& rhs) const {
+        return w < rhs.w;
+    }
 };
-
 /*
-* w : Weight of this edge.
-* a : Start vertex of this edge.
-* z : End vertex of this edge.
-* inv : The index of the reverse edge if this edge is undirected, otherwise equals -1.
+* w : weight
+* a : starting vertex
+* z : ending vertex
+* inv : the index of the reverse edge if this edge is undirected, otherwise equals -1.
 */
 template <typename Twe> class Edge {
 public:
@@ -26,14 +30,16 @@ public:
     int a, z, inv;
     Edge() : inv(-1) {}
     Edge(int a, int z, Twe w) : a(a), z(z), w(w), inv(-1) {}
+    bool operator < (const Edge& rhs) const {
+        return w < rhs.w;
+    }
 };
-
 /*
-* V : Number of vertices.
-* E : Number of edges.
-* vp : Vertices.
-* ep : Edges.
-* The index of vertices start from 0.
+* V : number of vertices.
+* E : number of edges.
+* vp : vertices.
+* ep : edges.
+* the graph is 0-indexed.
 */
 template <typename Twv = int, typename Twe = int> class Graph {
 public:
@@ -52,21 +58,29 @@ public:
         Edge<Twe> e(x, y, w);
         ep.push_back(e);
         int eid = E++;
-        vp[x].ep.push_back(eid);
+        vp[x].oep.push_back(eid);
+        vp[y].iep.push_back(eid);
         if (!f) {
             Edge<Twe> ie(y, x, w);
             ep.push_back(ie);
             int ieid = E++;
-            vp[y].ep.push_back(ieid);
+            vp[y].oep.push_back(ieid);
+            vp[x].iep.push_back(ieid);
             ep[eid].inv = ieid;
             ep[ieid].inv = eid;
         }
     }
-    int get_fanout(int u) {
-        return vp[u].ep.size();
+    int get_fanin(int u) {
+        return vp[u].iep.size();
     }
-    Edge<Twe>& get_edge(int u, int i) {
-        return ep[vp[u].ep[i]];
+    int get_fanout(int u) {
+        return vp[u].oep.size();
+    }
+    Edge<Twe>& get_i_edge(int u, int i) {
+        return ep[vp[u].iep[i]];
+    }
+    Edge<Twe>& get_o_edge(int u, int i) {
+        return ep[vp[u].oep[i]];
     }
     /*
     * q is a vector of size n, if q[u] != 0, vertex u will be ignored during the process, that is, the rooting process will be applied only on a limitted area.
@@ -75,8 +89,8 @@ public:
         vp[u].f = v;
         vp[u].d = v == -1 ? 0 : vp[v].d + 1;
         vp[u].sz = 1;
-        for (int i = 0; i < vp[u].ep.size(); i++) {
-            auto& e = get_edge(u, i);
+        for (int i = 0; i < get_fanout(u); i++) {
+            auto& e = get_o_edge(u, i);
             if (e.z == v) continue;
             if (q != NULL && (*q)[e.z]) continue;
             root(e.z, u, q);
@@ -89,8 +103,8 @@ private:
     vector<int> max_sub_sz;
     void get_max_sub_sz(int u, int v, vector<int>* q = NULL) {
         max_sub_sz[u] = 0;
-        for (int i = 0; i < vp[u].ep.size(); i++) {
-            auto& e = get_edge(u, i);
+        for (int i = 0; i < get_fanout(u); i++) {
+            auto& e = get_o_edge(u, i);
             if (e.z == v) continue;
             if (q != NULL && (*q)[e.z]) continue;
             max_sub_sz[u] = max(max_sub_sz[u], vp[e.z].sz);

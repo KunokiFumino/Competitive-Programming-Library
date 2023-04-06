@@ -1,6 +1,7 @@
 using Microsoft.VisualBasic;
 using System.Collections;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace CPCM
 {
@@ -9,6 +10,7 @@ namespace CPCM
         public Form1()
         {
             InitializeComponent();
+            this.textBox1.Font = new Font("Constantia", 15F);
             LoadConfig();
         }
 
@@ -50,9 +52,9 @@ namespace CPCM
                 e.CancelEdit = true;
                 return;
             }
-            if (names.Contains(e.Label))
+            if (names.Contains(e.Label) || File.Exists(Environment.CurrentDirectory + @"\" + e.Label + @".cpp"))
             {
-                MessageBox.Show("This name has already in use.");
+                MessageBox.Show(e.Label + @" already exists.");
                 e.CancelEdit = true;
                 return;
             }
@@ -62,7 +64,8 @@ namespace CPCM
                 names.Add(e.Label);
             }
             RenameDependences(this.treeView1.Nodes[0], this.treeView1.SelectedNode.Text, e.Label);
-            this.treeView1.SelectedNode.Name = e.Label;
+            String file = Environment.CurrentDirectory + @"\" + this.treeView1.SelectedNode.Text + @".cpp";
+            if (File.Exists(file)) Microsoft.VisualBasic.FileIO.FileSystem.RenameFile(file, e.Label + @".cpp");
             this.treeView1.SelectedNode.Text = e.Label;
             Export();
         }
@@ -83,7 +86,6 @@ namespace CPCM
         private void New_Click(object sender, EventArgs e)
         {
             TreeNode node = new TreeNode();
-            node.Name = "New Node";
             node.Text = "New Node";
             node.Tag = new Node();
             this.treeView1.SelectedNode.Nodes.Add(node);
@@ -107,7 +109,7 @@ namespace CPCM
 
         private void Edit_Click(object sender, EventArgs e)
         {
-            String file = Environment.CurrentDirectory + @"\" + this.treeView1.SelectedNode.Name + @".cpp";
+            String file = Environment.CurrentDirectory + @"\" + this.treeView1.SelectedNode.Text + @".cpp";
             if (!File.Exists(file)) File.Create(file).Close();
             Process.Start(@"notepad.exe ", file);
         }
@@ -120,8 +122,10 @@ namespace CPCM
         private void Delete_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to delete this node?", "confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
-            names.Remove(this.treeView1.SelectedNode.Name);
+            names.Remove(this.treeView1.SelectedNode.Text);
             this.treeView1.Nodes.Remove(this.treeView1.SelectedNode);
+            String file = Environment.CurrentDirectory + @"\" + this.treeView1.SelectedNode.Text + @".cpp";
+            if (File.Exists(file)) File.Delete(file);
             Export();
         }
         private Node[] nodes;
@@ -172,10 +176,9 @@ namespace CPCM
             foreach (Int32 i in nodes[u].subs)
             {
                 TreeNode node = new TreeNode();
-                node.Name = nodes[i].name;
                 node.Text = nodes[i].name;
                 node.Tag = nodes[i];
-                names.Add(node.Name);
+                names.Add(node.Text);
                 Int32 v = t.Nodes.Add(node);
                 PreloadTreeNode(t.Nodes[v], i);
             }
@@ -297,6 +300,27 @@ namespace CPCM
                 this.treeView1.SelectedNode = nu;
             }
             Export();
+        }
+
+        private bool search_keyword(TreeNode u, String pattern) {
+            bool res = false;
+            if (Regex.Match(u.Text, pattern, RegexOptions.IgnoreCase).Success) res = true;
+            foreach (TreeNode v in u.Nodes) res |= search_keyword(v, pattern);
+            if (res) u.ForeColor = Color.Red;
+            return res;
+        }
+
+        private void reset_color(TreeNode u) {
+            u.ForeColor = Color.Black;
+            foreach (TreeNode v in u.Nodes) reset_color(v);
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            reset_color(treeView1.Nodes[0]);
+            if (textBox1.Text == "") return;
+            String pattern = ".*" + textBox1.Text + ".*";
+            search_keyword(treeView1.Nodes[0], pattern);
         }
 
         private void button1_Click(object sender, EventArgs e)

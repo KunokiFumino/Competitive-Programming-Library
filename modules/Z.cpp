@@ -1,8 +1,8 @@
 /*
-* Note that:
+* note that:
 *     set_modulo will call function euler, which has a time cost of O(sqrt(P)).
-*     inv will call function power, which has a time cost of O(log2(phi)).
-* Both of them include modulo operation, abuse of them may lead to TLE.
+*     inv will excute exponent operation, which has a time cost of O(log2(phi)).
+* be careful for unexpected time limit exceeded.
 */
 class Z {
 private:
@@ -27,7 +27,10 @@ public:
         return x;
     }
     Z inv() const {
-        return power(*this, phi - 1);
+        return *this ^ (phi - 1);
+    }
+    void inc(long long d) {
+        x = norm(x + d);
     }
     bool operator < (const Z& rhs) const {
         return x < rhs.x;
@@ -50,6 +53,14 @@ public:
     Z& operator /= (const Z& rhs) {
         return *this *= rhs.inv();
     }
+    Z& operator ^= (long long b) {
+        if (b < 0) return *this = Z(1) * ((*this) ^ (-b)).inv();
+        Z res = 1, a = *this;
+        for (; b; b >>= 1, a *= a) {
+            if (b & 1) res *= a;
+        }
+        return *this = res;
+    }
     friend Z operator * (const Z& lhs, const Z& rhs) {
         Z res = lhs;
         res *= rhs;
@@ -68,6 +79,14 @@ public:
     friend Z operator / (const Z& lhs, const Z& rhs) {
         Z res = lhs;
         res *= rhs.inv();
+        return res;
+    }
+    friend Z operator ^ (const Z& lhs, long long b) {
+        if (b < 0) return Z(1) * ((lhs) ^ (-b)).inv();
+        Z res = 1, a = lhs;
+        for (; b; b >>= 1, a *= a) {
+            if (b & 1) res *= a;
+        }
         return res;
     }
     friend std::istream& operator >> (std::istream& is, Z& a) {

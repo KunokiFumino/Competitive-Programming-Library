@@ -2,145 +2,185 @@
 math
 0
 1
-power
-0
-1
 Z
-2
-power
+1
 euler
 1
-euclid
+INT
 0
 1
-euler
-0
-1
-generate_euler
-0
-1
-generate_prime
-0
-1
-prime_factors_decomposition
-0
-1
-generate_divisors
-0
-1
-count_factors
-1
-prime_factors_decomposition
-1
-sum_factors
-2
-prime_factors_decomposition
-power
-1
-Combination
+Matrix
 1
 Z
+1
+Combinatorial Number
+1
+Z
+1
+Linear Basis
+0
+1
+Extentded Chinese Remainder Theorem
+2
+greatest common divisor
+extended greatest common divisor
+1
+functions
+0
+8
+greatest common divisor
+0
+8
+extended greatest common divisor
+0
+8
+euler
+0
+8
+generate euler
+0
+8
+power
+0
+8
+is prime
+0
+8
+generate prime
+0
+8
+factorize
+0
+8
+get divisor
+0
+8
+generate divisors
+0
+8
+number of divisors
+1
+factorize
+8
+sum of divisors
+2
+factorize
+power
+8
+discrete logarithm
+2
+greatest common divisor
+power
 0
 string
 0
-13
+22
 prefix_function
 0
-13
+22
 z_function
 0
-13
+22
 LIS
 0
-13
+22
 LCS
 0
-13
+22
 LCIS
 0
-13
+22
 Trie
 0
-13
-AhoCorasickAutomaton
+22
+Aho Corasick Automaton
 1
 Trie
-13
-SuffixAutomation
+22
+Suffix Automation
 0
 0
 data structure
 0
-22
-DisjointSetUnion
+31
+Disjoint Set Union
 0
-22
-SegmentTree
+31
+Segment Tree
 0
-22
-SizeBalancedTree
+31
+Size Balanced Tree
 0
-22
-ChthollyTree
+31
+Chtholly Tree
 0
-22
-LeftistTree
+31
+Leftist Tree
 0
 0
 graph
 0
-28
-Edge
-0
-28
+37
 Graph
 1
 
-28
-LowestCommonAncestor
+37
+Lowest Common Ancestor
 1
 
-28
-HeavyLightDecomposition
+37
+Heavy Light Decomposition
 2
-SegmentTree
+Segment Tree
 Graph
-28
+37
 Dijkstra
 1
 Graph
-28
-HighLevelPreflowPush
+37
+High Level Preflow Push
 1
 Graph
-28
+37
 Tarjan
 1
 Graph
-28
-Toposort
-1
-Graph
-28
+37
 Blossom
 1
 Graph
+37
+Kruskal
+2
+Graph
+Disjoint Set Union
+37
+Minimum Steiner Tree
+1
+graph
+37
+Dominator Tree
+0
 0
 classical problems
 0
-38
-CPS_2_SAT
+48
+2 SAT
 2
 Graph
 Tarjan
+48
+Nim Game
+1
+Graph
 0
 tricks
 0
-40
-ConvexHull
+51
+Convex Hull
 0
-40
-CaptainMo
+51
+Captain Mo
 2
-LowestCommonAncestor
+Lowest Common Ancestor
 Graph
