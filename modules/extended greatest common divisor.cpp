@@ -2,7 +2,7 @@
 * get the minimum positive integer x that ax + by = gcd(a, b).
 * return gcd(a, b).
 */
-template <typename T = long long> T extended_euclid(T a, T b, T& x, T& y) {
+template <typename T = long long> T extended_greatest_common_divisor(T a, T b, T& x, T& y) {
     if (!b) {
         x = 1;
         y = 0;

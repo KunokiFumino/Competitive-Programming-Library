@@ -28,6 +28,9 @@ extended greatest common divisor
 functions
 0
 8
+power
+0
+8
 greatest common divisor
 0
 8
@@ -38,9 +41,6 @@ euler
 0
 8
 generate euler
-0
-8
-power
 0
 8
 is prime
@@ -71,115 +71,127 @@ discrete logarithm
 2
 greatest common divisor
 power
+8
+get primitive root
+3
+factorize
+power
+greatest common divisor
+8
+generate primitive root
+3
+factorize
+power
+greatest common divisor
 0
 string
 0
-22
-prefix_function
-0
-22
-z_function
-0
-22
-LIS
-0
-22
-LCS
-0
-22
-LCIS
-0
-22
+24
 Trie
 0
-22
+24
 Aho Corasick Automaton
 1
 Trie
-22
+24
 Suffix Automation
+0
+24
+prefix_function
+0
+24
+z_function
+0
+24
+LIS
+0
+24
+LCS
+0
+24
+LCIS
 0
 0
 data structure
 0
-31
+33
 Disjoint Set Union
 0
-31
+33
 Segment Tree
 0
-31
+33
 Size Balanced Tree
 0
-31
+33
 Chtholly Tree
 0
-31
+33
 Leftist Tree
 0
 0
 graph
 0
-37
+39
 Graph
 1
 
-37
+39
 Lowest Common Ancestor
 1
 
-37
+39
 Heavy Light Decomposition
 2
 Segment Tree
 Graph
-37
+39
 Dijkstra
 1
 Graph
-37
+39
 High Level Preflow Push
 1
 Graph
-37
+39
 Tarjan
 1
 Graph
-37
+39
 Blossom
 1
 Graph
-37
+39
 Kruskal
 2
 Graph
 Disjoint Set Union
-37
+39
 Minimum Steiner Tree
 1
 graph
-37
+39
 Dominator Tree
 0
 0
 classical problems
 0
-48
+50
 2 SAT
 2
 Graph
 Tarjan
-48
+50
 Nim Game
 1
 Graph
 0
 tricks
 0
-51
+53
 Convex Hull
 0
-51
+53
 Captain Mo
 2
 Lowest Common Ancestor

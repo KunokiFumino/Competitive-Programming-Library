@@ -1,14 +1,9 @@
-/*
-* note that:
-*     set_modulo will call function euler, which has a time cost of O(sqrt(P)).
-*     inv will excute exponent operation, which has a time cost of O(log2(phi)).
-* be careful for unexpected time limit exceeded.
-*/
 class Z {
 private:
     long long x;
     static long long P;
     static long long phi;
+    static bool phi_outdated;
     static long long norm(long long x) {
         if (x < 0) x += P;
         if (x >= P) x -= P;
@@ -16,21 +11,48 @@ private:
     }
 public:
     Z(long long x = 0) : x(norm(x% P)) {}
+    /*
+    * set the modulo number to np
+    */
     static void set_modulo(long long np) {
         P = np;
-        phi = euler(P);
+        phi_outdated = true;
     }
+    /*
+    * return current modulo number
+    */
     static long long get_modulo() {
         return P;
     }
     long long val() const {
         return x;
     }
+    /*
+    * return the inverse element of current, i.e. a/b=a*b.inv()
+    */
     Z inv() const {
+        if (phi_outdated) {
+            phi = euler(P);
+            phi_outdated = false;
+        }
         return *this ^ (phi - 1);
     }
+    /*
+    * increase by d, but avoid modulo operation
+    */
     void inc(long long d) {
         x = norm(x + d);
+    }
+    /*
+    * return the b-th power of current number
+    */
+    Z power(long long b) {
+        if (b < 0) return Z(1) * ((*this) ^ (-b)).inv();
+        Z res = 1, a = *this;
+        for (; b; b >>= 1, a *= a) {
+            if (b & 1) res *= a;
+        }
+        return res;
     }
     bool operator < (const Z& rhs) const {
         return x < rhs.x;
@@ -52,14 +74,6 @@ public:
     }
     Z& operator /= (const Z& rhs) {
         return *this *= rhs.inv();
-    }
-    Z& operator ^= (long long b) {
-        if (b < 0) return *this = Z(1) * ((*this) ^ (-b)).inv();
-        Z res = 1, a = *this;
-        for (; b; b >>= 1, a *= a) {
-            if (b & 1) res *= a;
-        }
-        return *this = res;
     }
     friend Z operator * (const Z& lhs, const Z& rhs) {
         Z res = lhs;
@@ -101,3 +115,4 @@ public:
 };
 long long Z::P = 1e9 + 7;
 long long Z::phi = 1e9 + 6;
+bool Z::phi_outdated = false;

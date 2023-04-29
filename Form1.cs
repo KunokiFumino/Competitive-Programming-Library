@@ -121,11 +121,16 @@ namespace CPCM
 
         private void Delete_Click(object sender, EventArgs e)
         {
+            if (this.treeView1.SelectedNode.Nodes.Count != 0)
+            {
+                MessageBox.Show("Can't delete node with subnodes in it.");
+                return;
+            }
             if (MessageBox.Show("Are you sure you want to delete this node?", "confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
             names.Remove(this.treeView1.SelectedNode.Text);
-            this.treeView1.Nodes.Remove(this.treeView1.SelectedNode);
             String file = Environment.CurrentDirectory + @"\" + this.treeView1.SelectedNode.Text + @".cpp";
             if (File.Exists(file)) File.Delete(file);
+            this.treeView1.Nodes.Remove(this.treeView1.SelectedNode);
             Export();
         }
         private Node[] nodes;

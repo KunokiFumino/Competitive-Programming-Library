@@ -1,13 +1,10 @@
-template<typename T> T power(T x, T k, T p = 1) {
-    T s = 1;
-    while (0 < k) {
-        if (k & 1) {
-            s *= x;
-            if (1 < p) s %= p;
-        }
-        x *= x;
-        if (1 < p) x %= p;
+template <typename T> T power(T x, T k, T p) {
+    assert(k >= 0);
+    long long res = 1;
+    while (k) {
+        if (k & 1) (res *= x) %= p;
+        (x *= x) %= p;
         k >>= 1;
     }
-    return s;
+    return res;
 }
